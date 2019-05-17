@@ -13,6 +13,7 @@ window.addEventListener("load", function() {
   var gameOver = false;
   var numberOfLives = 3;
   var score = 0;
+  var highScore = localStorage.getItem('highScore') || 0;
 
   var player = {
     x: GAME_PADDING,
@@ -75,8 +76,11 @@ window.addEventListener("load", function() {
 
   var scoreNode = document.getElementById("score");
   var livesNode = document.getElementById("lives");
+  var highScoreNode = document.getElementById("high-score");
   var canvas = document.getElementById("mycanvas");
   var ctx = canvas.getContext("2d");
+
+  highScoreNode.innerHTML = "HIGH SCORE: " + highScore;
 
   canvas.addEventListener("animationend", (e) => {
     canvas.classList.remove("apply-shake");
@@ -163,11 +167,22 @@ window.addEventListener("load", function() {
 
     enemies.forEach((enemy, index) => {
       if (checkCollision(player, enemy)) {
+        var deathSound = new Audio('resources/explosion.mp3');
+        deathSound.play();
         canvas.classList.add("apply-shake");
         numberOfLives--;
         livesNode.innerHTML = "NUMBER OF LIVES: " + numberOfLives;
         enemies.splice(index, 1);
         if (numberOfLives < 1) {
+          deathSound.pause();
+          var gameOverSound = new Audio('resources/gameover.wav');
+          gameOverSound.play();
+
+          if (score > highScore) {
+            window.localStorage.setItem('highScore', score);
+            highScoreNode.innerHTML = "NEW HIGH SCORE: " + score;
+          }
+
           gameOver = true;
         }
       }
@@ -206,6 +221,8 @@ window.addEventListener("load", function() {
     if (boundaryDown(player)) { player.y = GAME_HEIGHT - player.h - GAME_PADDING; }
 
     if (checkCollision(player, coin)) {
+      var successSound = new Audio('resources/success.wav');
+      successSound.play();
       score += 1000;
       scoreNode.innerHTML = "SCORE: " + score;
       createNewCoin();
