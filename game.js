@@ -82,10 +82,12 @@ window.addEventListener("load", function() {
 
   highScoreNode.innerHTML = "HIGH SCORE: " + highScore;
 
+  // Remove the shake class after animation has ended (so it plays anew)
   canvas.addEventListener("animationend", (e) => {
     canvas.classList.remove("apply-shake");
   });
 
+  // Move player object on keypress
   addEventListener("keydown", function(e) {
     if (e.keyCode == 37) {
       player.speedX = -PLAYER_SPEED;
@@ -104,6 +106,7 @@ window.addEventListener("load", function() {
     }
   });
 
+  // Stop moving the player object on key up
   addEventListener("keyup", function(e) {
     if (e.keyCode == 37) {
       player.speedX = 0;
@@ -122,11 +125,13 @@ window.addEventListener("load", function() {
     }
   });
 
+  // Update the location of the player, coin and enemy objects
   var update = function() {
     ctx.clearRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
     player.x = player.x + player.speedX;
     player.y = player.y + player.speedY;
 
+    // If there's less than 5 enemies create a new one
     if (enemies.length < 5) {
       var newEnemySpeedX = getRandomInt(5);
       var newEnemySpeedY = getRandomInt(5);
@@ -149,6 +154,7 @@ window.addEventListener("load", function() {
       coin.y = getRandomInt(GAME_HEIGHT - GAME_PADDING - COIN_HEIGHT);
     }
 
+    // Check whether a given game object is outside the game area
     var boundaryLeft = function(object) {
       return object.x <= GAME_PADDING;
     }
@@ -165,6 +171,7 @@ window.addEventListener("load", function() {
       return object.y + object.h >= GAME_HEIGHT - GAME_PADDING;
     }
 
+    // Update location of enemies and detect for collision with coin or player
     enemies.forEach((enemy, index) => {
       if (checkCollision(player, enemy)) {
         var deathSound = new Audio('resources/explosion.mp3');
@@ -229,6 +236,7 @@ window.addEventListener("load", function() {
     }
   }
 
+  // Update the canvas on every new tick
   var draw = function() {
     ctx.fillStyle = "#00FF00";
     ctx.fillRect(player.x, player.y, player.w, player.h);
