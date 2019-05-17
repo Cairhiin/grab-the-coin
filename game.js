@@ -9,11 +9,14 @@ window.addEventListener("load", function() {
   var PLAYER_SPEED = 3;
   var COIN_HEIGHT = 10;
   var COIN_WIDTH = 10;
+  var NUMBER_OF_MAX_ENEMIES = 5;
 
   var gameOver = false;
   var numberOfLives = 3;
   var score = 0;
-  var highScore = localStorage.getItem('highScore') || 0;
+  if (typeof(window.localStorage) !== undefined) {
+      var highScore = localStorage.getItem('highScore') || 0;
+  }
 
   var player = {
     x: GAME_PADDING,
@@ -132,7 +135,7 @@ window.addEventListener("load", function() {
     player.y = player.y + player.speedY;
 
     // If there's less than 5 enemies create a new one
-    if (enemies.length < 5) {
+    if (enemies.length < NUMBER_OF_MAX_ENEMIES) {
       var newEnemySpeedX = getRandomInt(5);
       var newEnemySpeedY = getRandomInt(5);
       var newEnemyX = getRandomInt(GAME_WIDTH - GAME_PADDING - ENEMY_WIDTH);
@@ -176,10 +179,12 @@ window.addEventListener("load", function() {
       if (checkCollision(player, enemy)) {
         var deathSound = new Audio('resources/explosion.mp3');
         deathSound.play();
+
         canvas.classList.add("apply-shake");
         numberOfLives--;
         livesNode.innerHTML = "NUMBER OF LIVES: " + numberOfLives;
         enemies.splice(index, 1);
+
         if (numberOfLives < 1) {
           deathSound.pause();
           var gameOverSound = new Audio('resources/gameover.wav');
@@ -191,6 +196,14 @@ window.addEventListener("load", function() {
           }
 
           gameOver = true;
+        }
+      }
+
+      // Reverse speed if enemies hit each other
+      for (i = 0; i < enemies.length; i++) {
+        if (checkCollision(enemy, enemies[i]) && i !== index) {
+          enemies[i].speedX = -enemies[i].speedX
+          enemies[i].speedY = -enemies[i].speedY
         }
       }
 
